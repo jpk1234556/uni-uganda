@@ -3,9 +3,14 @@ import { Toaster } from "@/components/ui/sonner";
 import Home from "@/pages/Home";
 import Search from "@/pages/Search";
 import Roommates from "@/pages/Roommates";
+import HostelDetail from "@/pages/HostelDetail";
 import Auth from "@/pages/Auth";
+import OwnerDashboard from "@/pages/OwnerDashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import StudentDashboard from "@/pages/StudentDashboard";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { AuthProvider } from "@/context/AuthContext";
 
 function App() {
@@ -21,6 +26,23 @@ function App() {
             <Route path="/roommates" element={<Roommates />} />
             <Route path="/hostel/:id" element={<HostelDetail />} />
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Protected Routes */}
+            <Route path="/student/dashboard" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/dashboard" element={
+              <ProtectedRoute allowedRoles={["hostel_owner", "admin"]}>
+                <OwnerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
         <Footer />
