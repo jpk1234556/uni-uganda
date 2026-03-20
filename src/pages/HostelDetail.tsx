@@ -6,19 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Star, Building, CheckCircle, Navigation, Loader2, ArrowLeft, Users } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { MapPin, Star, Building, CheckCircle, Navigation, Loader2, ArrowLeft, Users, MessageSquare } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-// import type { Hostel } from "@/types";
 
 export default function HostelDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, dbUser } = useAuth();
   const navigate = useNavigate();
 
   const [hostel, setHostel] = useState<any | null>(null);
   const [rooms, setRooms] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Booking State
@@ -35,6 +36,11 @@ export default function HostelDetail() {
     medical_history: ""
   });
 
+  // Review State
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+
   useEffect(() => {
     if (id) fetchHostelData();
   }, [id]);
@@ -42,6 +48,7 @@ export default function HostelDetail() {
   const fetchHostelData = async () => {
     try {
       setIsLoading(true);
+      // Fetch Hostel
       const { data: hostelData, error: hostelError } = await supabase
         .from('hostels')
         .select('*, users!hostels_owner_id_fkey(first_name, last_name, email)')
@@ -51,6 +58,7 @@ export default function HostelDetail() {
       if (hostelError) throw hostelError;
       setHostel(hostelData);
 
+      // Fetch Rooms
       const { data: roomsData } = await supabase
         .from('room_types')
         .select('*')
@@ -58,6 +66,16 @@ export default function HostelDetail() {
         .order('price', { ascending: true });
         
       setRooms(roomsData || []);
+
+      // Fetch Reviews
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*, users!reviews_student_id_fkey(first_name, last_name)')
+        .eq('hostel_id', id)
+        .order('created_at', { ascending: false });
+
+      setReviews(reviewsData || []);
+
     } catch (error) {
       toast.error("Failed to load hostel details");
       console.error(error);
@@ -72,7 +90,6 @@ export default function HostelDetail() {
       navigate("/auth");
       return;
     }
-    // Prevent booking own hostel or admin actions, but for MVP let backend handle logic. 
     setSelectedRoom(room);
     setIsBookingOpen(true);
   };
@@ -106,6 +123,32 @@ export default function HostelDetail() {
       toast.error(error.message || "Booking failed");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !hostel) return;
+
+    try {
+      setIsSubmittingReview(true);
+      const { error } = await supabase.from("reviews").insert({
+        hostel_id: hostel.id,
+        student_id: user.id,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment
+      });
+
+      if (error) throw error;
+      
+      toast.success("Review submitted! Thank you for your feedback.");
+      setIsReviewOpen(false);
+      setReviewForm({ rating: 5, comment: "" });
+      fetchHostelData(); 
+    } catch (error: any) {
+      toast.error(error.message || "Failed to submit review");
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -220,6 +263,42 @@ export default function HostelDetail() {
                 </div>
               )}
             </div>
+
+            {/* Reviews System */}
+            <div className="space-y-4 pt-6 mt-8">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-slate-900">Student Reviews</h3>
+                {user && dbUser?.role === 'student' && (
+                  <Button onClick={() => setIsReviewOpen(true)} variant="outline" className="gap-2 border-slate-200">
+                    <MessageSquare className="h-4 w-4" /> Write a Review
+                  </Button>
+                )}
+              </div>
+              
+              {reviews.length === 0 ? (
+                <div className="p-8 text-center bg-transparent rounded-2xl border border-dashed border-slate-300 text-slate-500">
+                  <p>No reviews yet. Be the first to review this hostel!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {reviews.map(review => (
+                    <Card key={review.id} className="border-slate-200 shadow-sm bg-white">
+                      <div className="p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                           <div className="font-bold text-slate-900">{review.users?.first_name} {review.users?.last_name}</div>
+                           <div className="flex items-center text-amber-500 text-sm font-medium bg-amber-50 px-2 py-0.5 rounded-full w-fit">
+                             <Star className="h-4 w-4 fill-amber-500 mr-1" /> {review.rating}/5
+                           </div>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed text-sm">{review.comment}</p>
+                        <p className="text-xs text-slate-400 mt-3">{new Date(review.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Sidebar */}
@@ -299,6 +378,48 @@ export default function HostelDetail() {
               <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Confirm Application
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Write a Review Dialog */}
+      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Write a Review</DialogTitle>
+            <DialogDescription>Share your experience about {hostel?.name}</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleReviewSubmit} className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label>Rating</Label>
+              <select 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                value={reviewForm.rating}
+                onChange={e => setReviewForm({...reviewForm, rating: Number(e.target.value)})}
+              >
+                <option value={5}>5 - Excellent</option>
+                <option value={4}>4 - Very Good</option>
+                <option value={3}>3 - Average</option>
+                <option value={2}>2 - Poor</option>
+                <option value={1}>1 - Terrible</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label>Your Comment</Label>
+              <Textarea 
+                placeholder="What did you like or dislike about your stay?" 
+                value={reviewForm.comment}
+                onChange={e => setReviewForm({...reviewForm, comment: e.target.value})}
+                required
+                className="min-h-[100px]"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" disabled={isSubmittingReview}>
+                {isSubmittingReview ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Submit Review
               </Button>
             </DialogFooter>
           </form>
