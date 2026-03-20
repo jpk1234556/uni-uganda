@@ -43,10 +43,25 @@ export default function Navbar() {
           </div>
 
           {user ? (
-             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-600 hidden md:inline-block">
+             <div className="flex items-center gap-2 md:gap-4">
+              <span className="text-sm font-medium text-slate-700 hidden lg:inline-block">
                 {dbUser ? `Hi, ${dbUser.first_name}` : ""}
               </span>
+              {dbUser?.role === 'super_admin' && (
+                <Link to="/admin/dashboard">
+                  <Button variant="default" className="rounded-full shadow-sm bg-slate-900 hover:bg-slate-800 text-white border-0">Admin Panel</Button>
+                </Link>
+              )}
+              {dbUser?.role === 'hostel_owner' && (
+                <Link to="/owner/dashboard">
+                  <Button variant="default" className="rounded-full shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white border-0">My Dashboard</Button>
+                </Link>
+              )}
+              {dbUser?.role === 'student' && (
+                <Link to="/student/dashboard">
+                  <Button variant="default" className="rounded-full shadow-sm bg-blue-600 hover:bg-blue-700 text-white border-0">My Bookings</Button>
+                </Link>
+              )}
               <Button onClick={signOut} variant="outline" className="rounded-full shadow-sm border-slate-200 text-slate-700 hover:bg-slate-50">Sign Out</Button>
             </div>
           ) : (
