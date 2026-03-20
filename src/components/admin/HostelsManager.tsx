@@ -28,7 +28,8 @@ export default function HostelsManager() {
     address: "",
     description: "",
     price_range: "",
-    images: "" 
+    images: "",
+    amenities: ""
   });
 
   // Manage Rooms State
@@ -36,7 +37,7 @@ export default function HostelsManager() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
   const [isLoadingRooms, setIsLoadingRooms] = useState(false);
-  const [newRoom, setNewRoom] = useState({ name: "", price: "", capacity: "" });
+  const [newRoom, setNewRoom] = useState({ name: "", price: "", capacity: "", description: "", images: "" });
 
   useEffect(() => { fetchHostels(); }, []);
 
@@ -65,6 +66,10 @@ export default function HostelsManager() {
       const imagesArray = newHostel.images
         ? newHostel.images.split(",").map(i => i.trim()).filter(Boolean)
         : [];
+      
+      const amenitiesArray = newHostel.amenities
+        ? newHostel.amenities.split(",").map(a => a.trim()).filter(Boolean)
+        : [];
 
       const { error } = await supabase
         .from("hostels")
@@ -75,6 +80,7 @@ export default function HostelsManager() {
           description: newHostel.description,
           price_range: newHostel.price_range,
           images: imagesArray,
+          amenities: amenitiesArray,
           owner_id: user?.id, // Super Admin is the owner
           status: "approved" // Auto-approve since admin creates it
         });
@@ -82,7 +88,7 @@ export default function HostelsManager() {
       if (error) throw error;
       toast.success("Hostel securely added to platform");
       
-      setNewHostel({ name: "", university: "", address: "", description: "", price_range: "", images: "" });
+      setNewHostel({ name: "", university: "", address: "", description: "", price_range: "", images: "", amenities: "" });
       setIsCreateDialogOpen(false);
       fetchHostels();
     } catch (error: any) {
@@ -145,16 +151,20 @@ export default function HostelsManager() {
     e.preventDefault();
     if (!selectedHostel) return;
     try {
+      const roomImagesArray = newRoom.images ? newRoom.images.split(",").map(i => i.trim()).filter(Boolean) : [];
+      
       const { error } = await supabase.from("room_types").insert({
         hostel_id: selectedHostel.id,
         name: newRoom.name,
         price: parseFloat(newRoom.price),
         capacity: parseInt(newRoom.capacity),
-        available: parseInt(newRoom.capacity)
+        available: parseInt(newRoom.capacity),
+        description: newRoom.description || null,
+        images: roomImagesArray.length > 0 ? roomImagesArray : null
       });
       if (error) throw error;
       toast.success("Room type added");
-      setNewRoom({ name: "", price: "", capacity: "" });
+      setNewRoom({ name: "", price: "", capacity: "", description: "", images: "" });
       fetchRooms(selectedHostel.id);
     } catch (error: any) {
       toast.error("Failed to add room: " + error.message);
@@ -214,7 +224,11 @@ export default function HostelsManager() {
                 <Input id="address" required value={newHostel.address} onChange={(e) => setNewHostel({...newHostel, address: e.target.value})} placeholder="e.g. Kikoni, Makerere" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="images" className="flex items-center gap-1"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Image URLs (comma separated)</Label>
+                <Label htmlFor="amenities">Amenities (comma separated)</Label>
+                <Input id="amenities" value={newHostel.amenities} onChange={(e) => setNewHostel({...newHostel, amenities: e.target.value})} placeholder="e.g. WiFi, Backup Generator, Security Guard" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="images" className="flex items-center gap-1"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Hostel Cover Image URLs (comma separated)</Label>
                 <Input id="images" value={newHostel.images} onChange={(e) => setNewHostel({...newHostel, images: e.target.value})} placeholder="https://image1.jpg, https://image2.jpg" />
               </div>
               <div className="space-y-2">
@@ -343,23 +357,33 @@ export default function HostelsManager() {
 
             <div className="border-t pt-4 mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
               <h4 className="font-semibold mb-4 text-indigo-800">Add New Room Type</h4>
-              <form onSubmit={handleAddRoom} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-                <div className="space-y-1 sm:col-span-2">
-                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Room Name</Label>
-                  <Input required value={newRoom.name} onChange={e => setNewRoom({...newRoom, name: e.target.value})} placeholder="Single Self-Contained" className="bg-white" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Price (UGX)</Label>
-                  <Input required type="number" min="0" value={newRoom.price} onChange={e => setNewRoom({...newRoom, price: e.target.value})} placeholder="1500000" className="bg-white" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Beds</Label>
-                  <div className="flex gap-2">
-                    <Input required type="number" min="1" value={newRoom.capacity} onChange={e => setNewRoom({...newRoom, capacity: e.target.value})} placeholder="1" className="bg-white" />
-                    <Button type="submit" size="icon" className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
-                      <Plus className="h-4 w-4" />
-                    </Button>
+              <form onSubmit={handleAddRoom} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1 sm:col-span-1">
+                    <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Room Name</Label>
+                    <Input required value={newRoom.name} onChange={e => setNewRoom({...newRoom, name: e.target.value})} placeholder="Single Self-Contained" className="bg-white" />
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Price (UGX)</Label>
+                    <Input required type="number" min="0" value={newRoom.price} onChange={e => setNewRoom({...newRoom, price: e.target.value})} placeholder="1500000" className="bg-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Beds</Label>
+                    <Input required type="number" min="1" value={newRoom.capacity} onChange={e => setNewRoom({...newRoom, capacity: e.target.value})} placeholder="1" className="bg-white" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Room Photos (comma separated URLs)</Label>
+                  <Input value={newRoom.images} onChange={e => setNewRoom({...newRoom, images: e.target.value})} placeholder="https://room-img.jpg" className="bg-white" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Room Description</Label>
+                  <Textarea value={newRoom.description} onChange={e => setNewRoom({...newRoom, description: e.target.value})} placeholder="Private balcony, en-suite bathroom..." className="bg-white resize-none h-20" />
+                </div>
+                <div className="flex justify-end">
+                   <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-2">
+                     <Plus className="h-4 w-4" /> Save Room Type
+                   </Button>
                 </div>
               </form>
             </div>

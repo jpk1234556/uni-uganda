@@ -236,27 +236,37 @@ export default function HostelDetail() {
               ) : (
                 <div className="grid grid-cols-1 gap-4">
                   {rooms.map(room => (
-                    <Card key={room.id} className="overflow-hidden border-slate-200 shadow-sm transition-all hover:shadow-md hover:border-indigo-100 group">
-                      <div className="p-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                         <div>
-                           <h4 className="text-lg font-bold text-slate-900 mb-1">{room.name}</h4>
-                           <div className="flex gap-4 text-sm text-slate-500">
-                             <span className="flex items-center gap-1"><Users className="h-4 w-4"/> Capacity: {room.capacity}</span>
-                             <span>Available: <strong className={room.available > 0 ? "text-emerald-600" : "text-rose-500"}>{room.available}</strong></span>
+                    <Card key={room.id} className="overflow-hidden border-slate-200 shadow-sm transition-all hover:shadow-md hover:border-indigo-100 group flex flex-col p-0">
+                      <div className="flex flex-col sm:flex-row w-full">
+                        {room.images && room.images.length > 0 && (
+                          <div className="sm:w-1/3 h-48 sm:h-auto border-b sm:border-b-0 sm:border-r border-slate-100 shrink-0">
+                             <img src={room.images[0]} alt={room.name} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        <div className="p-6 flex-1 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                           <div className="flex-1">
+                             <h4 className="text-lg font-bold text-slate-900 mb-1">{room.name}</h4>
+                             {room.description && (
+                               <p className="text-sm text-slate-600 mb-3">{room.description}</p>
+                             )}
+                             <div className="flex gap-4 text-sm text-slate-500 font-medium bg-slate-50 p-2 rounded-lg w-fit">
+                               <span className="flex items-center gap-1"><Users className="h-4 w-4"/> Capacity: {room.capacity}</span>
+                               <span className="pl-4 border-l border-slate-200">Available: <strong className={room.available > 0 ? "text-emerald-600" : "text-rose-500"}>{room.available}</strong></span>
+                             </div>
                            </div>
-                         </div>
-                         <div className="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
-                           <div className="text-2xl font-bold text-indigo-600">
-                             {room.price.toLocaleString('en-UG')} <span className="text-sm font-normal text-slate-500">UGX</span>
+                           <div className="flex flex-col sm:items-end justify-center gap-3 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-6 shrink-0">
+                             <div className="text-2xl font-bold text-indigo-600">
+                               {room.price.toLocaleString('en-UG')} <span className="text-sm font-normal text-slate-500">UGX</span>
+                             </div>
+                             <Button 
+                               onClick={() => handleBookClick(room)}
+                               disabled={room.available === 0}
+                               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+                             >
+                                {room.available > 0 ? "Book Room" : "Full"}
+                             </Button>
                            </div>
-                           <Button 
-                             onClick={() => handleBookClick(room)}
-                             disabled={room.available === 0}
-                             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
-                           >
-                              {room.available > 0 ? "Book Room" : "Full"}
-                           </Button>
-                         </div>
+                        </div>
                       </div>
                     </Card>
                   ))}

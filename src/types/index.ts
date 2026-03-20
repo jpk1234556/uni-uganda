@@ -32,6 +32,8 @@ export interface RoomType {
     price: number;
     capacity: number;
     available: number;
+    description?: string | null;
+    images?: string[] | null;
 }
 
 export interface Booking {
