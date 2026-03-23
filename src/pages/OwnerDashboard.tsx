@@ -76,13 +76,52 @@ export default function OwnerDashboard() {
   }, [user]);
 
   useEffect(() => {
-    if (user) fetchData();
+    if (user) {
+      fetchData();
+      
+      // Subscribe to real-time changes
+      const bookingsSub = supabase
+        .channel('public:bookings')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+          fetchData();
+        })
+        .subscribe();
+        
+      const hostelsSub = supabase
+        .channel('public:hostels')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'hostels' }, () => {
+          fetchData();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(bookingsSub);
+        supabase.removeChannel(hostelsSub);
+      };
+    }
   }, [user, fetchData]);
 
   // Handle Room Fetching when a hostel is selected
   useEffect(() => {
     if (selectedHostel && isRoomDialogOpen) {
       fetchRooms(selectedHostel.id);
+      
+      // Real-time updates for rooms
+      const roomsSub = supabase
+        .channel(`public:room_types:hostel_id=eq.${selectedHostel.id}`)
+        .on('postgres_changes', { 
+           event: '*', 
+           schema: 'public', 
+           table: 'room_types',
+           filter: `hostel_id=eq.${selectedHostel.id}`
+        }, () => {
+           fetchRooms(selectedHostel.id);
+        })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(roomsSub);
+      };
     }
   }, [selectedHostel, isRoomDialogOpen]);
 

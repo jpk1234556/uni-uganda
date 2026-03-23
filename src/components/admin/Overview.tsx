@@ -15,6 +15,25 @@ export default function Overview() {
 
   useEffect(() => {
     fetchMetrics();
+    
+    // Real-time subscriptions to keep dashboard metrics up to date
+    const usersSub = supabase.channel('admin:users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, fetchMetrics)
+      .subscribe();
+      
+    const hostelsSub = supabase.channel('admin:hostels')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hostels' }, fetchMetrics)
+      .subscribe();
+      
+    const bookingsSub = supabase.channel('admin:bookings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, fetchMetrics)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(usersSub);
+      supabase.removeChannel(hostelsSub);
+      supabase.removeChannel(bookingsSub);
+    };
   }, []);
 
   const fetchMetrics = async () => {

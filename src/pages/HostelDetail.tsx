@@ -42,7 +42,53 @@ export default function HostelDetail() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
 
   useEffect(() => {
-    if (id) fetchHostelData();
+    if (id) {
+      fetchHostelData();
+
+      // Realtime subscription for rooms
+      const roomsSubscription = supabase
+        .channel(`public:room_types:hostel_id=eq.${id}`)
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'room_types',
+            filter: `hostel_id=eq.${id}`
+          }, 
+          (payload: any) => {
+            if (payload.eventType === 'UPDATE') {
+              setRooms(currentRooms => 
+                currentRooms.map(room => room.id === payload.new.id ? { ...room, ...payload.new } : room)
+              );
+            } else if (payload.eventType === 'INSERT') {
+              setRooms(currentRooms => [...currentRooms, payload.new].sort((a: any, b: any) => a.price - b.price));
+            } else if (payload.eventType === 'DELETE') {
+              setRooms(currentRooms => currentRooms.filter(room => room.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      // Realtime subscription for reviews
+      const reviewsSubscription = supabase
+        .channel(`public:reviews:hostel_id=eq.${id}`)
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'reviews',
+            filter: `hostel_id=eq.${id}`
+          }, 
+          () => {
+             // Simplest approach: refetch the hostel data (or just reviews) when a review is added
+             fetchHostelData();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(roomsSubscription);
+        supabase.removeChannel(reviewsSubscription);
+      };
+    }
   }, [id]);
 
   const fetchHostelData = async () => {
