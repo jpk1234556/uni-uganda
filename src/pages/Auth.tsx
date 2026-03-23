@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import type { UserRole } from "@/types";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -22,22 +23,43 @@ export default function Auth() {
     const password = formData.get("password") as string;
     
     // For registration specifically
-    const role = formData.get("role") as string;
+    const role = formData.get("role") as UserRole;
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
+    const confirmPassword = formData.get("confirm_password") as string;
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
         toast.success("Logged in successfully!");
-        navigate("/");
+
+        // Fetch user role from the database to redirect appropriately
+        const { data: dbUserData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        const userRole: UserRole = (dbUserData?.role as UserRole) ?? "student";
+        if (userRole === "super_admin") {
+          navigate("/admin/dashboard");
+        } else if (userRole === "hostel_owner") {
+          navigate("/owner/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
         
       } else {
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match.");
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -45,7 +67,7 @@ export default function Auth() {
             data: {
               first_name: firstName,
               last_name: lastName,
-              role: role || 'student', // Default to student
+              role: role || "student",
             }
           }
         });
@@ -142,6 +164,10 @@ export default function Auth() {
                   <div className="space-y-2">
                     <Label htmlFor="register_password">Password</Label>
                     <Input id="register_password" name="password" type="password" required minLength={6} title="Password must be at least 6 characters long." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm_password">Confirm Password</Label>
+                    <Input id="confirm_password" name="confirm_password" type="password" required minLength={6} title="Please confirm your password." />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Creating account..." : "Create Account"}
