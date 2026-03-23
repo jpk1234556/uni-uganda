@@ -56,6 +56,11 @@ export default function Navbar() {
                   <Button variant="default" className="rounded-full shadow-sm bg-blue-600 hover:bg-blue-700 text-white border-0 transition-transform hover:scale-105">My Bookings</Button>
                 </Link>
               )}
+              {dbUser?.role === 'hostel_owner' && (
+                <Link to="/owner/dashboard">
+                  <Button variant="default" className="rounded-full shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white border-0 transition-transform hover:scale-105">My Hostels</Button>
+                </Link>
+              )}
               <Button onClick={signOut} variant="outline" className="rounded-full shadow-sm border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-rose-600 transition-colors">Sign Out</Button>
             </div>
           ) : (
@@ -114,6 +119,11 @@ export default function Navbar() {
                  {dbUser?.role === 'student' && (
                   <Link to="/student/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button className="w-full h-12 text-lg rounded-xl bg-blue-600 hover:bg-blue-700">My Bookings</Button>
+                  </Link>
+                 )}
+                 {dbUser?.role === 'hostel_owner' && (
+                  <Link to="/owner/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button className="w-full h-12 text-lg rounded-xl bg-emerald-600 hover:bg-emerald-700">My Hostels</Button>
                   </Link>
                  )}
                  <Button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full h-12 text-lg rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50">Sign Out</Button>
