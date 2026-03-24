@@ -23,6 +23,7 @@ A comprehensive monorepo-based platform for university student hostel booking in
 ## ✨ Features
 
 ### For Students
+
 - 🔍 Browse and search approved hostels
 - 📍 Filter by location, price, and amenities
 - 📸 View detailed property information with images
@@ -32,6 +33,7 @@ A comprehensive monorepo-based platform for university student hostel booking in
 - 👥 Find roommates
 
 ### For Hostel Owners
+
 - 🏢 Manage property listings
 - 📊 View and manage bookings
 - 💰 Track payments and revenue
@@ -39,6 +41,7 @@ A comprehensive monorepo-based platform for university student hostel booking in
 - 📈 Analytics dashboard
 
 ### For Administrators
+
 - 👥 User management (suspend/activate)
 - 🏠 Complete control over hostel listings
 - 🔐 Verify and approve properties
@@ -51,6 +54,7 @@ A comprehensive monorepo-based platform for university student hostel booking in
 ## 🛠️ Tech Stack
 
 **Frontend:**
+
 - React 19.2 with TypeScript
 - Vite 7.3.1 (Build tool & dev server)
 - Tailwind CSS 4.2.1 (Styling)
@@ -59,16 +63,19 @@ A comprehensive monorepo-based platform for university student hostel booking in
 - Framer Motion (Animations)
 
 **Backend:**
+
 - Supabase (PostgreSQL + Auth + Realtime)
 - Row Level Security (RLS)
 - Real-time subscriptions
 
 **State Management:**
+
 - Context API
 - React Hook Forms
 - Zod validation
 
 **Monorepo:**
+
 - npm workspaces
 - Shared packages for types, contexts, and UI
 
@@ -179,14 +186,32 @@ cd ../admin && vercel --prod
 ```
 
 **Important**: Set environment variables on Vercel for each deployed app:
+
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
+
+### Monorepo Root Vercel Presets
+
+This repository includes root-level Vercel preset files:
+
+- `vercel.student.json`
+- `vercel.owner.json`
+- `vercel.admin.json`
+
+You can deploy from root with a specific preset using Vercel CLI:
+
+```bash
+vercel --prod --local-config vercel.student.json
+vercel --prod --local-config vercel.owner.json
+vercel --prod --local-config vercel.admin.json
+```
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ### Other Platforms
 
 The apps can be deployed to any static hosting:
+
 - Netlify
 - Cloudflare Pages
 - AWS Amplify
@@ -218,12 +243,15 @@ npm run preview       # Preview built apps
 ## 👥 User Roles
 
 ### Student
+
 Browse hostels, submit bookings, track payments, find roommates
 
-### Hostel Owner  
+### Hostel Owner
+
 Manage properties, view bookings, receive payments
 
 ### Super Admin
+
 Full platform control - user management, property approval, financial oversight
 
 ---
@@ -292,4 +320,4 @@ If you encounter issues:
 
 **Built with ❤️ for Ugandan university students**
 
-*Last Updated: March 2026*
+_Last Updated: March 2026_
