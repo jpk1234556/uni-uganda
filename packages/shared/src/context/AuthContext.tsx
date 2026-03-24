@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
@@ -30,15 +36,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .select("*")
         .eq("id", userId)
         .single();
-        
+
       if (!error && data) {
         if (data.is_active === false) {
-           toast.error("Your account has been suspended by an administrator.");
-           await supabase.auth.signOut();
-           setUser(null);
-           setDbUser(null);
+          toast.error("Your account has been suspended by an administrator.");
+          await supabase.auth.signOut();
+          setUser(null);
+          setDbUser(null);
         } else {
-           setDbUser(data as DBUser);
+          setDbUser(data as DBUser);
         }
       }
     } catch (error) {
@@ -50,17 +56,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Check active sessions
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchDbUser(session.user.id);
-      } else {
-        setIsLoading(false);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }: { data: { session: Session | null } }) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchDbUser(session.user.id);
+        } else {
+          setIsLoading(false);
+        }
+      });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -69,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setDbUser(null);
           setIsLoading(false);
         }
-      }
+      },
     );
 
     return () => subscription.unsubscribe();

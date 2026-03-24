@@ -1,73 +1,295 @@
-# React + TypeScript + Vite
+# 🏠 Uni-Nest - University Hostel Booking Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive monorepo-based platform for university student hostel booking in Uganda.
 
-Currently, two official plugins are available:
+![Status](https://img.shields.io/badge/status-production--ready-success)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Node](https://img.shields.io/badge/node-%3E%3D18-green)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 📚 Table of Contents
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### For Students
+- 🔍 Browse and search approved hostels
+- 📍 Filter by location, price, and amenities
+- 📸 View detailed property information with images
+- ⭐ Read reviews and ratings from other students
+- 📝 Submit booking requests online
+- 💳 Track payment status
+- 👥 Find roommates
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### For Hostel Owners
+- 🏢 Manage property listings
+- 📊 View and manage bookings
+- 💰 Track payments and revenue
+- ✅ Approve/reject booking requests
+- 📈 Analytics dashboard
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### For Administrators
+- 👥 User management (suspend/activate)
+- 🏠 Complete control over hostel listings
+- 🔐 Verify and approve properties
+- 💵 Payment oversight and platform fees
+- 📊 Comprehensive reports and analytics
+- ⚡ Real-time updates across all apps
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- React 19.2 with TypeScript
+- Vite 7.3.1 (Build tool & dev server)
+- Tailwind CSS 4.2.1 (Styling)
+- Radix UI (UI components)
+- React Router DOM 7.13.1 (Routing)
+- Framer Motion (Animations)
+
+**Backend:**
+- Supabase (PostgreSQL + Auth + Realtime)
+- Row Level Security (RLS)
+- Real-time subscriptions
+
+**State Management:**
+- Context API
+- React Hook Forms
+- Zod validation
+
+**Monorepo:**
+- npm workspaces
+- Shared packages for types, contexts, and UI
+
+---
+
+## 📁 Project Structure
+
+```
+uni-nest1/
+├── apps/                    # Three separate applications
+│   ├── student/            # Student-facing app
+│   │   ├── src/
+│   │   ├── pages/
+│   │   └── dist/           # Production build
+│   ├── owner/              # Hostel owner dashboard
+│   │   ├── src/
+│   │   └── dist/
+│   └── admin/              # Super admin panel
+│       ├── src/
+│       └── dist/
+├── packages/               # Shared code
+│   ├── shared/            # Types, contexts, utilities
+│   └── ui/                # Reusable UI components
+├── supabase/              # Database migrations
+│   └── *.sql
+├── .env.local             # Environment variables (gitignored)
+├── DEPLOYMENT.md          # Deployment guide
+└── DATABASE_SETUP.md      # Database setup guide
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Quick Start
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+ and npm
+- Git
+- Supabase account
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd uni-nest1
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env.local
+
+# Edit .env.local and add your Supabase credentials
+# VITE_SUPABASE_URL=your_url
+# VITE_SUPABASE_ANON_KEY=your_key
 ```
+
+### Run Development Servers
+
+```bash
+# Student app (port determined by Vite)
+npm run dev:student
+
+# Owner app
+npm run dev:owner
+
+# Admin app
+npm run dev:admin
+```
+
+Each app will be available at a local URL shown in the terminal.
+
+---
+
+## 📖 Documentation
+
+### Getting Started Guides
+
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Complete production deployment guide
+- **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** - Database configuration and migrations
+- **[DEPLOY_SCRIPT.md](./DEPLOY_SCRIPT.md)** - Quick deploy scripts for Vercel
+
+### Key Resources
+
+1. **Database Setup**: Run all SQL migrations in Supabase
+2. **Environment Variables**: Configure `.env.local` with Supabase credentials
+3. **Build**: Test with `npm run build:all`
+4. **Deploy**: Follow DEPLOYMENT.md for production deployment
+
+---
+
+## 🌐 Deployment
+
+### Deploy to Vercel (Recommended)
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy each app
+cd apps/student && vercel --prod
+cd ../owner && vercel --prod
+cd ../admin && vercel --prod
+```
+
+**Important**: Set environment variables on Vercel for each deployed app:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+### Other Platforms
+
+The apps can be deployed to any static hosting:
+- Netlify
+- Cloudflare Pages
+- AWS Amplify
+- Railway
+
+---
+
+## 🔧 Available Scripts
+
+```bash
+# Development
+npm run dev:student    # Start student app dev server
+npm run dev:owner      # Start owner app dev server
+npm run dev:admin      # Start admin app dev server
+
+# Build
+npm run build         # Build all apps
+npm run build:all     # Same as above
+
+# Linting
+npm run lint          # Run ESLint
+
+# Preview production builds
+npm run preview       # Preview built apps
+```
+
+---
+
+## 👥 User Roles
+
+### Student
+Browse hostels, submit bookings, track payments, find roommates
+
+### Hostel Owner  
+Manage properties, view bookings, receive payments
+
+### Super Admin
+Full platform control - user management, property approval, financial oversight
+
+---
+
+## 🗄️ Database Setup
+
+1. Create Supabase project
+2. Run all SQL migrations in order (see `supabase/` folder)
+3. Create initial super admin user
+4. Enable Row Level Security (RLS)
+5. Configure realtime subscriptions
+
+Detailed steps in [DATABASE_SETUP.md](./DATABASE_SETUP.md)
+
+---
+
+## 🔐 Security
+
+- Row Level Security (RLS) on all database tables
+- Role-based access control
+- Protected routes in frontend
+- Client-side and server-side validation
+- Secure authentication via Supabase Auth
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🆘 Support
+
+If you encounter issues:
+
+1. Check the [troubleshooting section](./DEPLOYMENT.md#troubleshooting)
+2. Review browser console for errors
+3. Verify environment variables are set correctly
+4. Check Supabase dashboard for database errors
+
+---
+
+## 🎯 Roadmap
+
+- [ ] Mobile app versions (React Native)
+- [ ] In-app messaging system
+- [ ] Advanced analytics dashboard
+- [ ] Multi-language support
+- [ ] Integration with university systems
+- [ ] Automated backup system
+
+---
+
+**Built with ❤️ for Ugandan university students**
+
+*Last Updated: March 2026*

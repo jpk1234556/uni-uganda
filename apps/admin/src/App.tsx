@@ -22,7 +22,7 @@ export default function App() {
           <Route 
             path="/admin/*" 
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['super_admin']}>
                 <div className="flex h-screen bg-slate-100 overflow-hidden">
                   <AdminSidebar />
                   <main className="flex-1 overflow-y-auto p-4 md:p-8">

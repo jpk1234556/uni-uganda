@@ -32,9 +32,13 @@ export default function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/hostel/:id" element={<HostelDetail />} />
-                <Route 
-                  path="/student/dashboard" 
-                  element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} 
+                <Route
+                  path="/student/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["student"]}>
+                      <StudentDashboard />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

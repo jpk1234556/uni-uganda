@@ -22,7 +22,7 @@ export default function Auth({ appType = 'student' }: { appType?: 'student' | 'o
     const password = formData.get("password") as string;
     
     // For registration specifically
-    const role = appType === 'owner' ? 'hostel_owner' : appType === 'admin' ? 'admin' : 'student';
+    const role = appType === 'owner' ? 'hostel_owner' : appType === 'admin' ? 'super_admin' : 'student';
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
 
@@ -124,18 +124,14 @@ export default function Auth({ appType = 'student' }: { appType?: 'student' | 'o
               </CardHeader>
               <CardContent className="px-0">
                 <form onSubmit={handleAuth} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="first_name">First name</Label>
-                      <Input id="first_name" name="first_name" required pattern="[A-Za-z-]+" title="First name must contain only letters" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last_name">Last name</Label>
-                      <Input id="last_name" name="last_name" required pattern="[A-Za-z-]+" title="Last name must contain only letters" />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name">First name</Label>
+                    <Input id="first_name" name="first_name" required pattern="[A-Za-z-]+" title="First name must contain only letters" />
                   </div>
-                  {/* Hidden implicit role */}
-                  <input type="hidden" name="role" value={appType === 'owner' ? 'hostel_owner' : appType === 'admin' ? 'admin' : 'student'} />
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name">Last name</Label>
+                    <Input id="last_name" name="last_name" required pattern="[A-Za-z-]+" title="Last name must contain only letters" />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="register_email">Email</Label>
                     <Input id="register_email" name="email" type="email" placeholder="m@example.com" required />
