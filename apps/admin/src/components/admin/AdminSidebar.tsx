@@ -7,70 +7,94 @@ import {
   Star, 
   ShieldAlert, 
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
-interface AdminSidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
+export default function AdminSidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-export default function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
   const menuItems = [
-    { id: "overview", label: "Dashboard", icon: BarChart3 },
-    { id: "users", label: "Users", icon: Users },
-    { id: "hostels", label: "Hostels", icon: Home },
-    { id: "bookings", label: "Bookings", icon: Calendar },
-    { id: "payments", label: "Payments", icon: CreditCard },
-    { id: "reviews", label: "Reviews", icon: Star },
-    { id: "reports", label: "Reports", icon: ShieldAlert },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "dashboard", label: "Dashboard", icon: BarChart3, path: "/admin/dashboard" },
+    { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+    { id: "hostels", label: "Hostels", icon: Home, path: "/admin/hostels" },
+    { id: "bookings", label: "Bookings", icon: Calendar, path: "/admin/bookings" },
+    { id: "payments", label: "Payments", icon: CreditCard, path: "/admin/payments" },
+    { id: "reviews", label: "Reviews", icon: Star, path: "/admin/reviews" },
+    { id: "reports", label: "Reports", icon: ShieldAlert, path: "/admin/reports" },
   ];
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Logged out successfully");
+      navigate("/auth");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to log out");
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full w-full py-6">
-      <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+    <div className="flex flex-col h-full w-64 shrink-0 bg-slate-900 overflow-y-auto hidden md:flex">
+      <div className="px-6 py-6 mb-4 flex items-center gap-3 border-b border-slate-800">
+        <div className="p-2 bg-indigo-500 text-white rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.4)]">
           <ShieldCheck className="h-6 w-6" />
         </div>
         <div className="flex flex-col">
-          <span className="font-bold text-lg text-white leading-tight">Super Admin</span>
-          <span className="text-xs text-indigo-400 font-medium">Control Center</span>
+          <span className="font-bold text-lg text-white leading-tight tracking-tight">HostelUganda</span>
+          <span className="text-xs text-indigo-400 font-medium tracking-wide uppercase">Admin Panel</span>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1.5 px-3">
+      <nav className="flex-1 space-y-1.5 px-4 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = location.pathname.includes(item.path);
           
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              to={item.path}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group",
                 isActive 
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-900/20" 
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-900/30" 
+                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
               )}
             >
-              <Icon className={cn("h-4 w-4", isActive ? "text-white" : "text-slate-400")} />
+              <Icon className={cn("h-5 w-5 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-indigo-400")} />
               {item.label}
-            </button>
+            </Link>
           );
         })}
       </nav>
       
-      {/* Decorative footer element in sidebar */}
-      <div className="px-6 mt-auto">
-        <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-          <p className="text-xs text-slate-400 leading-relaxed">
-            UniNest Uganda<br/>
-            Engineered for Scale
-          </p>
-        </div>
+      <div className="px-4 py-4 mt-auto border-t border-slate-800 space-y-2">
+        <Link
+          to="/admin/settings"
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group",
+            location.pathname.includes("/admin/settings")
+              ? "bg-slate-800 text-white" 
+              : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          )}
+        >
+          <Settings className="h-5 w-5 text-slate-400 group-hover:text-slate-200" />
+          General Settings
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-start gap-3 px-3 py-3 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-200 group"
+        >
+          <LogOut className="h-5 w-5" />
+          Sign Out
+        </button>
       </div>
     </div>
   );
