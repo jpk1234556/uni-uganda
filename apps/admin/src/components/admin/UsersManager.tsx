@@ -1,60 +1,24 @@
-import { useState, useEffect, useMemo } from "react";
-import type { ChangeEvent } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useState, useEffect } from "react";
+import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Loader2,
-  MoreHorizontal,
-  UserCheck,
-  Ban,
-  Shield,
-  Home,
-  GraduationCap,
-  Users,
-  Search,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Loader2, MoreHorizontal, UserCheck, Ban, Shield, Home, GraduationCap, Users } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import type { DBUser } from "@/types";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function UsersManager() {
   const [users, setUsers] = useState<DBUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<
-    "all" | "student" | "hostel_owner" | "super_admin"
-  >("all");
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("users").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
@@ -64,35 +28,23 @@ export default function UsersManager() {
     }
   };
 
-  const handleUpdateRole = async (
-    userId: string,
-    targetRole: "student" | "hostel_owner" | "super_admin",
-  ) => {
+  const handleUpdateRole = async (userId: string, targetRole: 'student' | 'hostel_owner' | 'super_admin') => {
     try {
-      const { error } = await supabase
-        .from("users")
-        .update({ role: targetRole })
-        .eq("id", userId);
+      const { error } = await supabase.from("users").update({ role: targetRole }).eq("id", userId);
       if (error) throw error;
-      toast.success(`User role updated to ${targetRole.replace("_", " ")}`);
+      toast.success(`User role updated to ${targetRole.replace('_', ' ')}`);
       fetchUsers();
     } catch (error) {
       toast.error("Failed to update user role");
     }
   };
 
-  const handleToggleStatus = async (
-    userId: string,
-    currentStatus: boolean | undefined,
-  ) => {
+  const handleToggleStatus = async (userId: string, currentStatus: boolean | undefined) => {
     try {
-      const newStatus = currentStatus === false ? true : false;
-      const { error } = await supabase
-        .from("users")
-        .update({ is_active: newStatus })
-        .eq("id", userId);
+      const newStatus = currentStatus === false ? true : false; 
+      const { error } = await supabase.from("users").update({ is_active: newStatus }).eq("id", userId);
       if (error) throw error;
-      toast.success(`User account ${newStatus ? "activated" : "suspended"}`);
+      toast.success(`User account ${newStatus ? 'activated' : 'suspended'}`);
       fetchUsers();
     } catch (error) {
       toast.error("Failed to update user status");
@@ -101,241 +53,121 @@ export default function UsersManager() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   };
 
   const itemVariants = {
     hidden: { y: 10, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
+    visible: { y: 0, opacity: 1 }
   };
 
-  const filteredUsers = useMemo(() => {
-    const normalizedQuery = searchTerm.trim().toLowerCase();
-
-    return users.filter((user) => {
-      const matchesRole =
-        roleFilter === "all" ? true : user.role === roleFilter;
-      if (!matchesRole) return false;
-
-      if (!normalizedQuery) return true;
-
-      const fullName = `${user.first_name ?? ""} ${user.last_name ?? ""}`
-        .trim()
-        .toLowerCase();
-      const email = (user.email ?? "").toLowerCase();
-      return (
-        fullName.includes(normalizedQuery) || email.includes(normalizedQuery)
-      );
-    });
-  }, [users, roleFilter, searchTerm]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.3 }} 
       className="space-y-6"
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            <Users className="h-8 w-8 text-indigo-500" />
-            User Management
-          </h2>
-          <p className="text-slate-500 mt-2 text-lg">
-            Control roles, suspend accounts, and manage platform access.
-          </p>
-        </div>
-        <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              value={searchTerm}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setSearchTerm(e.target.value)
-              }
-              className="pl-9 bg-white"
-              placeholder="Search by name or email"
-            />
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Module_Access</span>
           </div>
-          <select
-            value={roleFilter}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              setRoleFilter(
-                e.target.value as
-                  | "all"
-                  | "student"
-                  | "hostel_owner"
-                  | "super_admin",
-              )
-            }
-            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
-          >
-            <option value="all">All roles</option>
-            <option value="student">Students</option>
-            <option value="hostel_owner">Owners</option>
-            <option value="super_admin">Super Admins</option>
-          </select>
+          <h2 className="text-2xl font-black tracking-tighter text-slate-900 uppercase">User_Management</h2>
+          <p className="text-slate-500 text-[10px] font-mono mt-1 uppercase tracking-widest">ACCESS_CONTROL_AND_PRIVILEGE_MANAGEMENT</p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded shadow-sm">
+          <Users className="h-3.5 w-3.5 text-slate-400" />
+          <span className="text-[10px] font-mono font-bold text-slate-600 uppercase tracking-widest">Total_Records: {users.length.toString().padStart(3, '0')}</span>
         </div>
       </div>
 
-      <Card className="border-slate-200 shadow-sm bg-white overflow-hidden rounded-xl">
+      <Card className="border-slate-200 rounded-none shadow-sm bg-white overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="py-24 flex flex-col items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-indigo-400 mb-4" />
-              <span className="text-slate-400 font-medium">
-                Fetching secure user data...
-              </span>
+              <Loader2 className="h-6 w-6 animate-spin text-indigo-400 mb-3" />
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Streaming_User_Registry...</span>
             </div>
-          ) : filteredUsers.length === 0 ? (
-            <div className="py-24 text-center">
-              <span className="text-slate-400">
-                No users match your current filters.
-              </span>
-            </div>
+          ) : users.length === 0 ? (
+             <div className="py-24 text-center">
+               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">No_Records_Found</span>
+             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-slate-50 border-b border-slate-100">
-                  <TableRow className="hover:bg-slate-50">
-                    <TableHead className="w-[300px] text-slate-500 font-semibold h-12">
-                      User Identity
-                    </TableHead>
-                    <TableHead className="text-slate-500 font-semibold">
-                      Contact Email
-                    </TableHead>
-                    <TableHead className="text-slate-500 font-semibold">
-                      Assigned Role
-                    </TableHead>
-                    <TableHead className="text-slate-500 font-semibold">
-                      Account Status
-                    </TableHead>
-                    <TableHead className="text-right text-slate-500 font-semibold pr-6">
-                      Security Actions
-                    </TableHead>
+              <Table className="font-mono">
+                <TableHeader className="bg-slate-50/80 border-b border-slate-200">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-[300px] text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10">Identity_Hash</TableHead>
+                    <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10">Communication_Node</TableHead>
+                    <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10">Access_Level</TableHead>
+                    <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10">Status_Flag</TableHead>
+                    <TableHead className="text-right text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 pr-6">Operations</TableHead>
                   </TableRow>
                 </TableHeader>
-                <motion.tbody
-                  variants={containerVariants}
-                  initial="hidden"
+                <motion.tbody 
+                  variants={containerVariants} 
+                  initial="hidden" 
                   animate="visible"
                   className="divide-y divide-slate-100"
                 >
-                  {filteredUsers.map((u) => (
-                    <motion.tr
-                      variants={itemVariants}
-                      key={u.id}
-                      className="group hover:bg-slate-50/50 transition-colors"
-                    >
-                      <TableCell className="py-4">
+                  {users.map((u) => (
+                    <motion.tr variants={itemVariants} key={u.id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0">
+                      <TableCell className="py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold shadow-sm">
+                          <div className="h-7 w-7 bg-slate-100 border border-slate-200 text-slate-600 rounded flex items-center justify-center text-[10px] font-bold">
                             {u.first_name?.charAt(0) || "?"}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                            <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">
                               {u.first_name} {u.last_name}
                             </span>
-                            <span className="text-xs text-slate-400">
-                              ID: {u.id.split("-")[0]}...
-                            </span>
+                            <span className="text-[9px] text-slate-400 tracking-widest">UID: {u.id.split('-')[0]}</span>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-600 font-medium">
-                        {u.email}
-                      </TableCell>
+                      <TableCell className="text-[11px] text-slate-600 lowercase">{u.email}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2 capitalize font-medium text-slate-700">
-                          {u.role === "super_admin" && (
-                            <Shield className="h-4 w-4 text-indigo-500" />
-                          )}
-                          {u.role === "hostel_owner" && (
-                            <Home className="h-4 w-4 text-amber-500" />
-                          )}
-                          {u.role === "student" && (
-                            <GraduationCap className="h-4 w-4 text-emerald-500" />
-                          )}
-                          {u.role.replace("_", " ")}
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700 uppercase tracking-widest">
+                          {u.role === 'super_admin' && <Shield className="h-3 w-3 text-indigo-500" />}
+                          {u.role === 'hostel_owner' && <Home className="h-3 w-3 text-amber-500" />}
+                          {u.role === 'student' && <GraduationCap className="h-3 w-3 text-emerald-500" />}
+                          {u.role.replace('_', ' ')}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            u.is_active === false ? "destructive" : "default"
-                          }
-                          className={
-                            u.is_active !== false
-                              ? "bg-emerald-100 text-emerald-700 border-0"
-                              : "bg-rose-100 text-rose-700 border-0"
-                          }
-                        >
+                        <div className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-widest",
+                          u.is_active === false ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                        )}>
                           {u.is_active === false ? "Suspended" : "Active"}
-                        </Badge>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right pr-6">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0 hover:bg-slate-200"
-                              disabled={u.role === "super_admin"}
-                            >
-                              <MoreHorizontal className="h-4 w-4 text-slate-500" />
+                            <Button variant="ghost" className="h-7 w-7 p-0 hover:bg-slate-200 rounded" disabled={u.role === 'super_admin'}>
+                              <MoreHorizontal className="h-3.5 w-3.5 text-slate-500" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-56 rounded-xl shadow-lg border-slate-200"
-                          >
-                            <DropdownMenuLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                              Security Controls
-                            </DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleToggleStatus(u.id, u.is_active)
-                              }
-                              className="cursor-pointer focus:bg-slate-100"
-                            >
-                              {u.is_active === false ? (
-                                <>
-                                  <UserCheck className="mr-2 h-4 w-4 text-emerald-500" />{" "}
-                                  Restore Access
-                                </>
-                              ) : (
-                                <>
-                                  <Ban className="mr-2 h-4 w-4 text-rose-500" />{" "}
-                                  Suspend Account
-                                </>
-                              )}
+                          <DropdownMenuContent align="end" className="w-56 rounded-none shadow-xl border-slate-200 p-1 font-mono">
+                            <DropdownMenuLabel className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] px-2 py-1.5">Security_Protocol</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleToggleStatus(u.id, u.is_active)} className="cursor-pointer focus:bg-slate-100 text-[10px] font-bold uppercase tracking-widest px-2 py-2">
+                              {u.is_active === false ? <><UserCheck className="mr-2 h-3.5 w-3.5 text-emerald-500" /> Restore_Access</> : <><Ban className="mr-2 h-3.5 w-3.5 text-rose-500" /> Suspend_Account</>}
                             </DropdownMenuItem>
-
+                            
                             <DropdownMenuSeparator className="bg-slate-100" />
-                            <DropdownMenuLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                              Privilege Escalation
-                            </DropdownMenuLabel>
-
-                            {u.role !== "student" && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateRole(u.id, "student")
-                                }
-                                className="cursor-pointer focus:bg-slate-100"
-                              >
-                                <GraduationCap className="mr-2 h-4 w-4 text-emerald-500" />{" "}
-                                Demote to Student
+                            <DropdownMenuLabel className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] px-2 py-1.5">Privilege_Shift</DropdownMenuLabel>
+                            
+                            {u.role !== 'student' && (
+                              <DropdownMenuItem onClick={() => handleUpdateRole(u.id, 'student')} className="cursor-pointer focus:bg-slate-100 text-[10px] font-bold uppercase tracking-widest px-2 py-2">
+                                <GraduationCap className="mr-2 h-3.5 w-3.5 text-emerald-500" /> Demote_To_Student
                               </DropdownMenuItem>
                             )}
-                            {u.role !== "hostel_owner" && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateRole(u.id, "hostel_owner")
-                                }
-                                className="cursor-pointer focus:bg-slate-100"
-                              >
-                                <Home className="mr-2 h-4 w-4 text-amber-500" />{" "}
-                                Promote to Owner
+                            {u.role !== 'hostel_owner' && (
+                              <DropdownMenuItem onClick={() => handleUpdateRole(u.id, 'hostel_owner')} className="cursor-pointer focus:bg-slate-100 text-[10px] font-bold uppercase tracking-widest px-2 py-2">
+                                <Home className="mr-2 h-3.5 w-3.5 text-amber-500" /> Promote_To_Owner
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function HostelVerification() {
   const [pendingHostels, setPendingHostels] = useState<any[]>([]);
@@ -325,5 +325,3 @@ export default function HostelVerification() {
     </motion.div>
   );
 }
-
-

@@ -1,14 +1,14 @@
-import {
-  BarChart3,
-  Users,
-  Home,
-  Calendar,
-  CreditCard,
-  Star,
-  ShieldAlert,
+import { 
+  BarChart3, 
+  Users, 
+  Home, 
+  Calendar, 
+  CreditCard, 
+  Star, 
+  ShieldAlert, 
   Settings,
   ShieldCheck,
-  LogOut,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -20,39 +20,19 @@ export default function AdminSidebar() {
   const navigate = useNavigate();
 
   const isPathActive = (path: string) => {
-    return (
-      location.pathname === path || location.pathname.startsWith(`${path}/`)
-    );
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: BarChart3,
-      path: "/admin/dashboard",
-    },
-    { id: "users", label: "Users", icon: Users, path: "/admin/users" },
-    { id: "hostels", label: "Hostels", icon: Home, path: "/admin/hostels" },
-    {
-      id: "bookings",
-      label: "Bookings",
-      icon: Calendar,
-      path: "/admin/bookings",
-    },
-    {
-      id: "payments",
-      label: "Payments",
-      icon: CreditCard,
-      path: "/admin/payments",
-    },
-    { id: "reviews", label: "Reviews", icon: Star, path: "/admin/reviews" },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: ShieldAlert,
-      path: "/admin/reports",
-    },
+    { id: "dashboard", label: "DASHBOARD", icon: BarChart3, path: "/admin/dashboard" },
+    { id: "users", label: "USER_MANAGEMENT", icon: Users, path: "/admin/users" },
+    { id: "universities", label: "UNIVERSITY_REGISTRY", icon: ShieldCheck, path: "/admin/universities" },
+    { id: "hostels", label: "HOSTEL_INVENTORY", icon: Home, path: "/admin/hostels" },
+    { id: "verification", label: "VERIFICATION_QUEUE", icon: ShieldCheck, path: "/admin/verification" },
+    { id: "bookings", label: "BOOKING_LOGS", icon: Calendar, path: "/admin/bookings" },
+    { id: "payments", label: "FINANCIAL_RECORDS", icon: CreditCard, path: "/admin/payments" },
+    { id: "reviews", label: "USER_FEEDBACK", icon: Star, path: "/admin/reviews" },
+    { id: "reports", label: "SYSTEM_REPORTS", icon: ShieldAlert, path: "/admin/reports" },
   ];
 
   const handleLogout = async () => {
@@ -67,84 +47,72 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full w-72 shrink-0 bg-slate-900 overflow-y-auto">
-      <div className="px-6 py-6 mb-4 border-b border-slate-800 bg-[linear-gradient(180deg,rgba(249,115,22,0.14),transparent)]">
+    <div className="flex flex-col h-full w-64 shrink-0 bg-[#0B1120] border-r border-slate-800 overflow-y-auto">
+      <div className="px-6 py-8 mb-4 flex flex-col gap-4 border-b border-slate-800/50">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-orange-500 text-white rounded-lg shadow-[0_0_18px_rgba(249,115,22,0.45)]">
-            <ShieldCheck className="h-6 w-6" />
+          <div className="p-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+            <ShieldCheck className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-lg text-white leading-tight tracking-tight">
-              UniNest Uganda
-            </span>
-            <span className="text-xs text-orange-300 font-medium tracking-wide uppercase">
-              Admin Panel
-            </span>
+            <span className="font-bold text-sm text-white leading-tight tracking-widest uppercase">UniNest_Admin</span>
+            <span className="text-[10px] text-slate-500 font-mono tracking-tighter">v2.4.0_STABLE</span>
           </div>
         </div>
-        <p className="mt-4 text-xs text-slate-400 leading-relaxed">
-          Engineered for secure operations, moderation, and platform growth.
-        </p>
+        <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/5 border border-emerald-500/20 rounded">
+          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-mono text-emerald-500/80 uppercase tracking-widest">System_Online</span>
+        </div>
       </div>
 
-      <nav className="flex-1 space-y-1.5 px-4 overflow-y-auto">
-        <p className="px-3 pb-2 text-[11px] text-slate-500 font-semibold tracking-[0.12em] uppercase">
-          Main Navigation
-        </p>
+      <nav className="flex-1 space-y-1 px-3 overflow-y-auto">
+        <div className="px-3 mb-2">
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Core_Modules</span>
+        </div>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = isPathActive(item.path);
-
+          
           return (
             <Link
               key={item.id}
               to={item.path}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative",
-                isActive
-                  ? "bg-orange-500 text-white shadow-md shadow-orange-900/30"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200",
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded text-[11px] font-mono transition-all duration-150 group border border-transparent",
+                isActive 
+                  ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.05)]" 
+                  : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300 hover:border-slate-700/50"
               )}
             >
-              {isActive && (
-                <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-white/80" />
-              )}
-              <Icon
-                className={cn(
-                  "h-5 w-5 transition-colors",
-                  isActive
-                    ? "text-white"
-                    : "text-slate-400 group-hover:text-orange-300",
-                )}
-              />
-              {item.label}
+              <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-indigo-400" : "text-slate-600 group-hover:text-slate-400")} />
+              <span className="tracking-wider">{item.label}</span>
+              {isActive && <div className="ml-auto h-1 w-1 rounded-full bg-indigo-400 shadow-[0_0_5px_rgba(99,102,241,0.5)]" />}
             </Link>
           );
         })}
       </nav>
-
-      <div className="px-4 py-4 mt-auto border-t border-slate-800 space-y-2">
-        <p className="px-3 pb-1 text-[11px] text-slate-500 font-semibold tracking-[0.12em] uppercase">
-          Preferences
-        </p>
+      
+      <div className="px-3 py-6 mt-auto border-t border-slate-800/50 space-y-1">
+        <div className="px-3 mb-2">
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Maintenance</span>
+        </div>
         <Link
           to="/admin/settings"
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded text-[11px] font-mono transition-all duration-150 group border border-transparent",
             isPathActive("/admin/settings")
-              ? "bg-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-slate-200",
+              ? "bg-slate-800 text-white border-slate-700" 
+              : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300 hover:border-slate-700/50"
           )}
         >
-          <Settings className="h-5 w-5 text-slate-400 group-hover:text-slate-200" />
-          General Settings
+          <Settings className="h-4 w-4 text-slate-600 group-hover:text-slate-400" />
+          <span className="tracking-wider">SYSTEM_CONFIG</span>
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-start gap-3 px-3 py-3 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-200 group"
+          className="w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded text-[11px] font-mono text-rose-500/70 hover:bg-rose-500/5 hover:text-rose-400 hover:border-rose-500/20 border border-transparent transition-all duration-150 group"
         >
-          <LogOut className="h-5 w-5" />
-          Sign Out
+          <LogOut className="h-4 w-4" />
+          <span className="tracking-wider">TERMINATE_SESSION</span>
         </button>
       </div>
     </div>

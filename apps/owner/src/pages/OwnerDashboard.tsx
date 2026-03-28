@@ -49,7 +49,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import type { Hostel, RoomType } from "@/types";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -855,5 +855,3 @@ export default function OwnerDashboard() {
     </div>
   );
 }
-
-

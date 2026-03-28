@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, School, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function UniversityManager() {
   const [universities, setUniversities] = useState<any[]>([]);
@@ -210,5 +210,3 @@ export default function UniversityManager() {
     </motion.div>
   );
 }
-
-
