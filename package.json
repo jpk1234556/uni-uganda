@@ -10,8 +10,11 @@
   "scripts": {
     "dev": "npm run dev -w @uni-nest/student -- --port 3000 --host 0.0.0.0",
     "dev:student": "npm run dev -w @uni-nest/student",
+    "dev/student": "npm run dev:student",
     "dev:owner": "npm run dev -w @uni-nest/owner",
+    "dev/owner": "npm run dev:owner",
     "dev:admin": "npm run dev -w @uni-nest/admin",
+    "dev/admin": "npm run dev:admin",
     "build": "npm run build --workspaces --if-present",
     "build:all": "npm run build --workspaces --if-present",
     "lint": "eslint .",
