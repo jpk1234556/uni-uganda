@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MoreHorizontal, UserCheck, Ban, Shield, Home, GraduationCap, Users } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { DBUser } from "@/types";
 import { motion } from "motion/react";
